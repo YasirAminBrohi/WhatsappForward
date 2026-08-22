@@ -497,8 +497,59 @@ function installAllHooks(): void {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Active Chat Resolution
+// 5. Active Chat Resolution & In-Page Composer Clear
 // ---------------------------------------------------------------------------
+
+function clearInPageComposer(): void {
+  try {
+    const composer = document.querySelector<HTMLElement>(
+      'div[data-lexical-editor="true"], footer div[contenteditable="true"], div[data-testid="conversation-compose-box-input"]'
+    );
+    if (!composer) return;
+
+    composer.focus();
+
+    // 1. Check Lexical Editor instance directly on DOM
+    const editor = (composer as any).__lexicalEditor;
+    if (editor && typeof editor.update === 'function') {
+      try {
+        editor.update(() => {
+          const root = editor._editorState?._nodeMap?.get('root');
+          if (root && typeof root.clear === 'function') {
+            root.clear();
+          }
+        });
+      } catch { /* ignore */ }
+    }
+
+    // 2. Browser native selection & execCommand
+    document.execCommand('selectAll', false, undefined);
+    document.execCommand('delete', false, undefined);
+    document.execCommand('insertText', false, '');
+
+    composer.dispatchEvent(
+      new InputEvent('beforeinput', {
+        bubbles: true,
+        cancelable: true,
+        inputType: 'deleteHardLineBackward',
+      })
+    );
+    composer.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        cancelable: true,
+        inputType: 'deleteContentBackward',
+      })
+    );
+
+    // 3. Fallback innerHTML reset if text persists
+    if ((composer.innerText || composer.textContent || '').trim().length > 0) {
+      composer.innerHTML = '<p class="selectable-text copyable-text"><br></p>';
+      composer.dispatchEvent(new Event('input', { bubbles: true }));
+      composer.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  } catch { /* ignore */ }
+}
 
 function getActiveChat(): any {
   if (waModules.ChatCollection) {
@@ -625,6 +676,7 @@ async function sendForwardedMessage(
             } catch { /* ignore */ }
           }
 
+          clearInPageComposer();
           console.log(WFM_LOG_PREFIX, `✅ [Method A] Dispatched message with forwarded score=${score}`);
           return { success: true };
         }
@@ -637,6 +689,7 @@ async function sendForwardedMessage(
     if (waModules.addAndSendTextMsg) {
       try {
         await waModules.addAndSendTextMsg(chat, text, forwardingOptions);
+        clearInPageComposer();
         console.log(WFM_LOG_PREFIX, `✅ [Method B] Dispatched message with forwarded score=${score}`);
         return { success: true };
       } catch (err: any) {
@@ -648,6 +701,7 @@ async function sendForwardedMessage(
     if (waModules.sendTextMsgToChat) {
       try {
         await waModules.sendTextMsgToChat(chat, text, forwardingOptions);
+        clearInPageComposer();
         console.log(WFM_LOG_PREFIX, `✅ [Method C] Dispatched message with forwarded score=${score}`);
         return { success: true };
       } catch (err: any) {
@@ -664,6 +718,7 @@ async function sendForwardedMessage(
           ...forwardingOptions,
         };
         await chat.sendMessage(msgData, forwardingOptions);
+        clearInPageComposer();
         console.log(WFM_LOG_PREFIX, `✅ [Method D] Dispatched message with forwarded score=${score}`);
         return { success: true };
       } catch (err: any) {
@@ -777,3 +832,4 @@ initLoop(20, 1000);
 (window as any).__wfm_modules = waModules;
 (window as any).__wfm_diagnostics = diagnostics;
 (window as any).__wfm_sendForwarded = sendForwardedMessage;
+(window as any).__wfm_clearComposer = clearInPageComposer;

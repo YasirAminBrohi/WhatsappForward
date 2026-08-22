@@ -1,0 +1,365 @@
+/* WhatsApp Web Forwarded Text Mode - Popup Styles */
+
+:root {
+  --bg-primary: #111b21;
+  --bg-secondary: #202c33;
+  --bg-card: #182229;
+  --bg-hover: #222e35;
+  --text-primary: #e9edef;
+  --text-secondary: #8696a0;
+  --text-muted: #667781;
+  --accent-green: #00a884;
+  --accent-hover: #06cf9c;
+  --accent-glow: rgba(0, 168, 132, 0.25);
+  --border-color: rgba(134, 150, 160, 0.15);
+  --danger-color: #ef4444;
+  --notice-bg: rgba(0, 168, 132, 0.08);
+  --notice-border: rgba(0, 168, 132, 0.25);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #f0f2f5;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-hover: #f5f6f6;
+    --text-primary: #111b21;
+    --text-secondary: #667781;
+    --text-muted: #8696a0;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --notice-bg: rgba(0, 168, 132, 0.06);
+    --notice-border: rgba(0, 168, 132, 0.2);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 370px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.popup-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #00a884 0%, #128c7e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.header-titles h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.tab-status-pill {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.tab-status-pill.active {
+  background-color: rgba(0, 168, 132, 0.15);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+/* Cards */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.card-description {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 10px 0;
+}
+
+/* Status Banner */
+.status-banner {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.status-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.status-banner.active {
+  background-color: rgba(0, 168, 132, 0.12);
+}
+
+.status-banner.active .status-dot {
+  background-color: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+.status-banner.active .status-text {
+  color: var(--accent-green);
+}
+
+/* Style Options */
+.style-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.style-option {
+  display: block;
+  cursor: pointer;
+}
+
+.style-option input[type="radio"] {
+  display: none;
+}
+
+.style-box {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.style-option input[type="radio"]:checked + .style-box {
+  border-color: var(--accent-green);
+  background-color: rgba(0, 168, 132, 0.08);
+}
+
+.style-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.style-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.style-badge {
+  font-size: 9.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: rgba(0, 168, 132, 0.2);
+  color: var(--accent-green);
+  font-weight: 500;
+}
+
+.style-preview {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+  padding: 4px 6px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+/* Secondary Settings */
+.setting-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.setting-subtext {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Switches */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #3b4a54;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+  background-color: var(--accent-green);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.small-switch {
+  width: 36px;
+  height: 20px;
+}
+
+.small-switch .slider:before {
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+}
+
+.small-switch input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+/* Notice Card */
+.notice-card {
+  background-color: var(--notice-bg);
+  border-color: var(--notice-border);
+  padding: 12px;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent-green);
+  margin-bottom: 4px;
+}
+
+.notice-body {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.notice-body strong {
+  color: var(--text-primary);
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  padding-top: 2px;
+}

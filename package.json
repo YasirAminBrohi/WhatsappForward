@@ -1,0 +1,25 @@
+{
+  "name": "whatsapp-forwarded-mode",
+  "version": "1.0.0",
+  "description": "A Chromium browser extension for WhatsApp Web providing a visual Forwarded Text Mode for typed messages.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "whatsapp-web",
+    "chrome-extension",
+    "manifest-v3",
+    "forwarded-mode",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3"
+  }
+}

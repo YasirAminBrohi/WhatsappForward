@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forwarded Text Mode</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-group">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.34 5L2 22l5.22-1.31C8.63 21.49 10.27 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+          </svg>
+        </div>
+        <div class="header-titles">
+          <h1>Forwarded Text Mode</h1>
+          <span class="subtitle">WhatsApp Web Enhancement</span>
+        </div>
+      </div>
+      <span id="tab-status" class="tab-status-pill">Checking...</span>
+    </header>
+
+    <!-- Main Mode Toggle Card -->
+    <div class="card hero-card">
+      <div class="card-row">
+        <div class="card-info">
+          <div class="card-title">Forwarded Mode</div>
+          <div class="card-description" id="mode-desc">Format typed messages so recipients see a forwarded layout</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggle-forwarded-mode">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="status-banner" id="status-banner">
+        <span class="status-dot"></span>
+        <span class="status-text" id="status-text">Forwarded Mode: OFF</span>
+      </div>
+    </div>
+
+    <!-- Protocol Mode Card -->
+    <div class="card settings-card">
+      <div class="card-row">
+        <div class="card-info">
+          <div class="setting-title">Protocol-Level Mode</div>
+          <div class="setting-subtext">Use WhatsApp internal API to set the real forwarded flag (recommended)</div>
+        </div>
+        <label class="switch small-switch">
+          <input type="checkbox" id="toggle-protocol-mode">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="status-banner" id="module-status-banner" style="margin-top: 8px;">
+        <span class="status-dot"></span>
+        <span class="status-text" id="module-status-text">WA Modules: Checking...</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Forwarding Score -->
+      <div class="card-row" style="flex-direction: column; align-items: stretch;">
+        <div class="card-info" style="margin-bottom: 6px;">
+          <div class="setting-title">Forwarding Score</div>
+          <div class="setting-subtext">
+            <strong>1</strong> = "Forwarded" &bull;
+            <strong>4+</strong> = "Forwarded many times"
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input type="range" id="forwarding-score" min="1" max="4" step="1" value="1"
+                 style="flex: 1; accent-color: #00a884;">
+          <span id="score-value" style="font-weight: 600; min-width: 18px; text-align: center;">1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fallback Formatting Style (shown when protocol mode is off) -->
+    <div class="card style-card" id="fallback-style-card">
+      <div class="card-info" style="margin-bottom: 8px;">
+        <div class="setting-title">Fallback Formatting Style</div>
+        <div class="setting-subtext">Used when protocol mode is off or WA modules are unavailable:</div>
+      </div>
+      <div class="style-options">
+        <label class="style-option">
+          <input type="radio" name="forwardedStyle" value="quote" id="style-quote" checked>
+          <div class="style-box">
+            <div class="style-header">
+              <span class="style-name">Blockquote (Recommended)</span>
+              <span class="style-badge">Native Markdown</span>
+            </div>
+            <div class="style-preview">&gt; ↪ _Forwarded_<br>&gt; Your message here</div>
+          </div>
+        </label>
+
+        <label class="style-option">
+          <input type="radio" name="forwardedStyle" value="divider" id="style-divider">
+          <div class="style-box">
+            <div class="style-header">
+              <span class="style-name">Divider Line</span>
+            </div>
+            <div class="style-preview">↪ _Forwarded message_<br>──────────────<br>Your message here</div>
+          </div>
+        </label>
+
+        <label class="style-option">
+          <input type="radio" name="forwardedStyle" value="header" id="style-header">
+          <div class="style-box">
+            <div class="style-header">
+              <span class="style-name">Clean Header</span>
+            </div>
+            <div class="style-preview">↪ _Forwarded_<br><br>Your message here</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Secondary Preferences -->
+    <div class="card settings-card">
+      <div class="card-row">
+        <div class="card-info">
+          <div class="setting-title">In-Page Quick Toggle</div>
+          <div class="setting-subtext">Show one-click toggle pill directly in WhatsApp Web</div>
+        </div>
+        <label class="switch small-switch">
+          <input type="checkbox" id="toggle-inpage-control">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-row">
+        <div class="card-info">
+          <div class="setting-title">Developer Debug Mode</div>
+          <div class="setting-subtext">Output diagnostic logs in browser console</div>
+        </div>
+        <label class="switch small-switch">
+          <input type="checkbox" id="toggle-debug-mode">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Architecture & Limitation Notice -->
+    <div class="card notice-card">
+      <div class="notice-header">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+        </svg>
+        <span>How it Works</span>
+      </div>
+      <p class="notice-body">
+        <strong>Protocol Mode:</strong> Accesses WhatsApp Web's internal modules to set the <code>isForwarded</code> flag and <code>forwardingScore</code> at the protocol level. The recipient's client renders the <strong>native forwarded banner</strong>.<br><br>
+        <strong>Fallback Mode:</strong> Wraps your text in WhatsApp markdown so the recipient sees a quote-styled forwarded layout.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>100% Private &bull; End-to-End Encrypted via WhatsApp &bull; No Server</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

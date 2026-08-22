@@ -1,0 +1,75 @@
+/* WhatsApp Web Forwarded Text Mode - Content Styles */
+
+/* In-Page Quick Toggle Pill */
+.wfm-injected-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(134, 150, 160, 0.35) !important;
+  background-color: #202c33 !important;
+  color: #e9edef !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  z-index: 999999 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Light mode adjustments */
+html[dir] body:not(.dark) .wfm-injected-pill {
+  background-color: #f0f2f5 !important;
+  color: #111b21 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.wfm-injected-pill:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+  border-color: #00a884 !important;
+}
+
+.wfm-injected-pill:active {
+  transform: translateY(0) !important;
+}
+
+/* Fixed floating position when attached to body */
+body > .wfm-injected-pill {
+  position: fixed !important;
+  bottom: 85px !important;
+  right: 24px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+.wfm-pill-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background-color: #8696a0 !important;
+  flex-shrink: 0 !important;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.wfm-pill-dot.wfm-dot-active {
+  background-color: #00a884 !important;
+  box-shadow: 0 0 8px #00a884 !important;
+}
+
+.wfm-pill-text {
+  white-space: nowrap !important;
+  font-size: 12px !important;
+}
+
+.wfm-pill-text strong {
+  font-weight: 600 !important;
+}
+
+.wfm-injected-pill[data-mode="on"] .wfm-pill-text strong {
+  color: #00a884 !important;
+}

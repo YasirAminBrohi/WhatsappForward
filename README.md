@@ -6,16 +6,30 @@ The WhatsApp backend, the Signal Protocol encryption layer, and all recipient de
 
 ---
 
+## Developer & Author
+
+- **Developer**: **Muhammad Yasir**
+- **GitHub**: [@YasirAminBrohi](https://github.com/YasirAminBrohi)
+- **LinkedIn**: [muhammad-yasir-402a67237](https://www.linkedin.com/in/muhammad-yasir-402a67237)
+- **Instagram**: [@yasiraminbrohi](https://www.instagram.com/yasiraminbrohi/)
+- **Repository**: [https://github.com/YasirAminBrohi/WhatsappForward.git](https://github.com/YasirAminBrohi/WhatsappForward.git)
+
+---
+
 ## Table of Contents
 
 - [Key Features](#key-features)
+- [Simple Explanation: How It Works](#simple-explanation-how-it-works)
+  - [1. The 3 Hidden Layers in WhatsApp Web](#1-the-3-hidden-layers-in-whatsapp-web)
+  - [2. The Protobuf Dilemma](#2-the-protobuf-dilemma)
+  - [3. The Step-by-Step Keystroke Journey](#3-the-step-by-step-keystroke-journey)
+  - [4. The 4 Major Engineering Challenges Solved](#4-the-4-major-engineering-challenges-solved)
 - [How It Works: Protocol-Level Deep Dive](#how-it-works-protocol-level-deep-dive)
   - [The Protobuf Wire Problem](#the-protobuf-wire-problem)
   - [The Solution: Protobuf Transformation](#the-solution-protobuf-transformation)
 - [System Architecture](#system-architecture)
   - [High-Level Flow Diagram](#high-level-flow-diagram)
   - [Execution Worlds & Process Isolation](#execution-worlds--process-isolation)
-  - [Module Call Sequence](#module-call-sequence)
 - [Component Breakdown](#component-breakdown)
   - [1. Page-Context Engine (`waInject.ts`)](#1-page-context-engine-wainjectts)
   - [2. Send Interception & Event Pipeline (`sendPlugin.ts`)](#2-send-interception--event-pipeline-sendplugints)
@@ -45,6 +59,114 @@ The WhatsApp backend, the Signal Protocol encryption layer, and all recipient de
 - **Lexical Editor Reconciliation**: Cleanly handles Meta's Lexical editor state to prevent text retention on Enter and duplicate dispatches on button click.
 - **In-Page Quick Toggle Pill**: Docked right into WhatsApp Web's chat header for 1-click toggling.
 - **Zero External Requests**: 100% client-side operation with zero tracking, data collection, or external telemetry.
+
+---
+
+## Simple Explanation: How It Works
+
+### 1. The 3 Hidden Layers in WhatsApp Web
+
+When you send a message on WhatsApp, it passes through **3 distinct layers**:
+
+```
+Layer 1: The UI (What you see)
+  └─ React components & Meta's "Lexical" text editor.
+
+Layer 2: The Internal Store (Memory)
+  └─ JavaScript modules (`ChatCollection`, `MsgModel`, `WAWebSendMsgChatAction`).
+
+Layer 3: The Protocol & Encryption Wire (The Network)
+  └─ Protobuf serialization (`waE2E.proto`) + Signal Protocol E2E Encryption.
+```
+
+---
+
+### 2. The Protobuf Dilemma
+
+WhatsApp uses **Protocol Buffers (Protobuf)** to structure data before encrypting it.
+
+#### When you normally type a message:
+WhatsApp encodes it as a bare text string called `conversation`:
+```json
+{
+  "conversation": "Hello there"
+}
+```
+> **The Problem:** In WhatsApp’s protobuf specification, the `conversation` field is just raw text. It has **no subfields** and **cannot hold any metadata**. 
+
+#### When you use WhatsApp's native Forward button:
+WhatsApp encodes it as an `extendedTextMessage`:
+```json
+{
+  "extendedTextMessage": {
+    "text": "Hello there",
+    "contextInfo": {
+      "isForwarded": true,
+      "forwardingScore": 1
+    }
+  }
+}
+```
+> **The Key:** The `ContextInfo` subfield contains `isForwarded: true` and `forwardingScore: 1`. When the recipient’s phone (iPhone/Android) decrypts this, it reads `isForwarded: true` and renders the official WhatsApp **`↪ Forwarded`** banner.
+
+Because of **End-to-End Encryption**, WhatsApp's servers cannot read the message contents. The server simply delivers the encrypted bundle to the recipient, whose device trusts the decrypted `ContextInfo` flag.
+
+---
+
+### 3. The Step-by-Step Keystroke Journey
+
+Here is the exact journey of a message from the moment you hit **Enter**:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as You (Typing)
+    participant DOM as Lexical Editor (DOM)
+    participant SP as sendPlugin.ts (Extension Sandbox)
+    participant Bridge as CustomEvent Bridge
+    participant Main as waInject.ts (WhatsApp Context)
+    participant Proto as createMsgProtobuf Hook
+    participant WA as WhatsApp Signal Engine
+    participant Recipient as Friend's Phone
+
+    User->>DOM: Types "hi" and presses Enter
+    DOM->>SP: keydown event captured
+    SP->>DOM: Cancels event & clears input box
+    SP->>Bridge: Dispatches 'wfm-command' (text: "hi", score: 1)
+    Bridge->>Main: Receives command in WhatsApp's main JS context
+    Main->>WA: Calls addAndSendMsgToChat(activeChat, msgData)
+    WA->>Proto: WhatsApp serializes message for transmission
+    Note over Proto: Protobuf Hook detects active Forwarded Mode<br/>Deletes 'conversation'<br/>Creates 'extendedTextMessage' with ContextInfo
+    Proto-->>WA: Returns upgraded Protobuf
+    WA->>WA: Encrypts with recipient's Signal E2E keys
+    WA->>Recipient: Transmits encrypted WebSocket frame
+    Recipient->>Recipient: Decrypts & displays official "↪ Forwarded" badge
+```
+
+---
+
+### 4. The 4 Major Engineering Challenges Solved
+
+#### Challenge 1: The Chrome Extension Security Wall
+* **The issue:** Chrome extensions run in an "Isolated World", completely separated from WhatsApp Web's internal JavaScript variables (`window.require`).
+* **The solution:** We split the extension into two:
+  1. `content.js` (Isolated World): Intercepts keystrokes and button clicks.
+  2. `waInject.js` (Main World): Injected directly into WhatsApp Web's execution context.
+  3. A `CustomEvent` bridge (`wfm-command` / `wfm-response`) lets them communicate asynchronously in under 1 millisecond.
+
+#### Challenge 2: Scanning Meta's 5,000+ Internal Modules
+* **The issue:** WhatsApp Web bundles all its code under obfuscated names, and `createMsgProtobuf` is loaded dynamically.
+* **The solution:** `waInject.ts` accesses Meta's runtime module registry (`require('__debug').modulesMap`). It scans all modules in memory, locates every Protobuf serializer, and wraps them with our upgrade interceptor.
+
+#### Challenge 3: Eliminating Duplicate Sends & Input Box Clearing
+* **The issue:** WhatsApp uses Meta's **Lexical** editor. Simply clearing the DOM doesn't reset Lexical's internal state. Also, clicking the Send button fires both `mousedown` and `click`.
+* **The solution:**
+  - In `sendPlugin.ts`, we synchronously trap and suppress all mouse and keyboard events (`preventDefault()`, `stopImmediatePropagation()`).
+  - We dispatch native `beforeinput` (`deleteHardLineBackward`) events to instruct Lexical to flush its internal state cleanly.
+
+#### Challenge 4: Sender-Side UI Rendering
+* **The issue:** WhatsApp Web's local React view only rendered forwarded headers on received messages or messages forwarded via the native UI.
+* **The solution:** `forwardedRenderer.ts` observes the DOM and inserts the matching official WhatsApp `↪ Forwarded` SVG header directly into your green bubble (`.copyable-text`), giving you the exact same view as your mobile app.
 
 ---
 

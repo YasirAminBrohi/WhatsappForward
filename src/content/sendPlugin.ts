@@ -10,6 +10,7 @@
  */
 
 import { ExtensionSettings } from '../types';
+import { tagAndRenderBubble } from './forwardedRenderer';
 import { logger } from './logger';
 import { sendForwardedMessage, syncForwardedState } from './moduleLoader';
 
@@ -158,6 +159,15 @@ function handleSendInterception(e: Event): void {
         console.log('[ForwardedMode] ✅ Message sent via WhatsApp protocol API with forwarded badge!');
         // Second pass clear to ensure no leftover text in any editor sub-tree
         clearComposer(composer);
+
+        // Immediate visual badge tagging on sender's newly created bubble
+        setTimeout(() => {
+          const bubbles = document.querySelectorAll<HTMLElement>('.message-out, div[class*="message-out"]');
+          if (bubbles.length > 0) {
+            const lastBubble = bubbles[bubbles.length - 1];
+            tagAndRenderBubble(lastBubble, score);
+          }
+        }, 50);
       } else {
         console.warn('[ForwardedMode] Protocol send note:', result?.error || 'unhandled error');
       }

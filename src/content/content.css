@@ -73,3 +73,25 @@ body > .wfm-injected-pill {
 .wfm-injected-pill[data-mode="on"] .wfm-pill-text strong {
   color: #00a884 !important;
 }
+
+/* Official WhatsApp Forwarded Header Badge on Sender's Bubbles */
+.wfm-forwarded-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-bottom: 3px !important;
+  font-style: italic !important;
+  font-size: 12.5px !important;
+  line-height: 14px !important;
+  color: var(--secondary, #8696a0) !important;
+  user-select: none !important;
+}
+
+.wfm-forwarded-header svg {
+  display: inline-block !important;
+  width: 13px !important;
+  height: 13px !important;
+  fill: currentColor !important;
+  flex-shrink: 0 !important;
+  transform: scaleX(-1) !important;
+}

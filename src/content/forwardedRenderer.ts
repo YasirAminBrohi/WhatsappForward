@@ -2,12 +2,13 @@
  * forwardedRenderer.ts — Sender-Side Forwarded Header Badge Renderer
  *
  * Ensures outgoing message bubbles on the sender's WhatsApp Web view visually display
- * the authentic "↪ Forwarded" banner above the message text whenever Forwarded Mode is active.
+ * the authentic "↪ Forwarded" banner inside the green bubble above the message text.
  */
 
 import { ExtensionSettings } from '../types';
 
 let observer: MutationObserver | null = null;
+let pollTimer: ReturnType<typeof setInterval> | null = null;
 let currentSettings: ExtensionSettings | null = null;
 
 const FORWARD_ICON_SVG = `
@@ -29,24 +30,46 @@ function createForwardedBadgeElement(score: number): HTMLElement {
 }
 
 export function tagAndRenderBubble(bubble: HTMLElement, score: number): void {
-  // If the bubble already has a forwarded badge (native or injected), skip
+  if (!bubble) return;
+
+  // If already tagged or has official native badge, skip
   if (
     bubble.querySelector('.wfm-forwarded-header') ||
     bubble.querySelector('[data-testid="forwarded"]') ||
-    bubble.querySelector('[data-icon="forwarded"]')
+    bubble.querySelector('[data-icon="forwarded"]') ||
+    bubble.querySelector('[data-icon="forwarded-many"]')
   ) {
     return;
   }
 
-  // Find the text container or inner bubble body
-  const textContainer = bubble.querySelector<HTMLElement>('div.copyable-text, span.selectable-text');
-  if (textContainer && textContainer.parentElement) {
+  // Target the inner bubble body (copyable-text is the green bubble container in WA Web)
+  const copyableContainer = bubble.matches?.('.copyable-text')
+    ? bubble
+    : bubble.querySelector<HTMLElement>('.copyable-text') ||
+      bubble.querySelector<HTMLElement>('div[class*="_amk6"], div[class*="_amk7"], div[class*="_21Ahp"], div[class*="_1BOkc"]') ||
+      bubble;
+
+  if (copyableContainer) {
     const badge = createForwardedBadgeElement(score);
-    textContainer.parentElement.insertBefore(badge, textContainer);
-  } else {
-    const innerBubble = bubble.querySelector<HTMLElement>('div[class*="_amk4"], div[class*="_21Ahp"], div[class*="_1BOkc"]') || bubble;
-    const badge = createForwardedBadgeElement(score);
-    innerBubble.insertBefore(badge, innerBubble.firstChild);
+    copyableContainer.insertBefore(badge, copyableContainer.firstChild);
+  }
+}
+
+export function scanAllOutgoingBubbles(): void {
+  if (!currentSettings || !currentSettings.forwardedMode) return;
+  const score = currentSettings.forwardingScore ?? 1;
+
+  const selectors = [
+    'div.message-out',
+    'div[class*="message-out"]',
+    'div[data-id^="true_"]',
+  ];
+
+  for (const selector of selectors) {
+    try {
+      const elements = document.querySelectorAll<HTMLElement>(selector);
+      elements.forEach((el) => tagAndRenderBubble(el, score));
+    } catch { /* ignore */ }
   }
 }
 
@@ -57,27 +80,14 @@ export function initForwardedRenderer(settings: ExtensionSettings): void {
     observer.disconnect();
     observer = null;
   }
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
 
-  observer = new MutationObserver((mutations) => {
-    if (!currentSettings?.forwardedMode) return;
-    const score = currentSettings.forwardingScore ?? 1;
-
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (!(node instanceof HTMLElement)) continue;
-
-        const bubbles: HTMLElement[] = [];
-        if (node.matches?.('.message-out, div[class*="message-out"]')) {
-          bubbles.push(node);
-        }
-        node.querySelectorAll?.<HTMLElement>('.message-out, div[class*="message-out"]').forEach((b) => {
-          bubbles.push(b);
-        });
-
-        for (const bubble of bubbles) {
-          tagAndRenderBubble(bubble, score);
-        }
-      }
+  observer = new MutationObserver(() => {
+    if (currentSettings?.forwardedMode) {
+      scanAllOutgoingBubbles();
     }
   });
 
@@ -86,17 +96,19 @@ export function initForwardedRenderer(settings: ExtensionSettings): void {
     subtree: true,
   });
 
-  // Check existing recent messages
-  if (currentSettings.forwardedMode) {
-    const existing = document.querySelectorAll<HTMLElement>('.message-out, div[class*="message-out"]');
-    existing.forEach((el) => tagAndRenderBubble(el, currentSettings?.forwardingScore ?? 1));
-  }
+  // Periodic fallback scan to handle React DOM reconciliations
+  pollTimer = setInterval(() => {
+    if (currentSettings?.forwardedMode) {
+      scanAllOutgoingBubbles();
+    }
+  }, 400);
+
+  scanAllOutgoingBubbles();
 }
 
 export function updateForwardedRendererSettings(settings: ExtensionSettings): void {
   currentSettings = settings;
   if (settings.forwardedMode) {
-    const existing = document.querySelectorAll<HTMLElement>('.message-out, div[class*="message-out"]');
-    existing.forEach((el) => tagAndRenderBubble(el, settings.forwardingScore ?? 1));
+    scanAllOutgoingBubbles();
   }
 }

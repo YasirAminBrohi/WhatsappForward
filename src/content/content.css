@@ -78,13 +78,21 @@ body > .wfm-injected-pill {
 .wfm-forwarded-header {
   display: flex !important;
   align-items: center !important;
+  width: 100% !important;
+  flex-basis: 100% !important;
   gap: 4px !important;
-  margin-bottom: 3px !important;
+  margin-top: 1px !important;
+  margin-bottom: 4px !important;
+  padding-left: 2px !important;
   font-style: italic !important;
   font-size: 12.5px !important;
   line-height: 14px !important;
-  color: var(--secondary, #8696a0) !important;
+  color: rgba(233, 237, 239, 0.65) !important;
   user-select: none !important;
+}
+
+html[dir] body:not(.dark) .wfm-forwarded-header {
+  color: rgba(17, 27, 33, 0.6) !important;
 }
 
 .wfm-forwarded-header svg {
@@ -94,4 +102,10 @@ body > .wfm-injected-pill {
   fill: currentColor !important;
   flex-shrink: 0 !important;
   transform: scaleX(-1) !important;
+}
+
+.wfm-forwarded-header span {
+  font-family: inherit !important;
+  font-size: 12.5px !important;
+  font-style: italic !important;
 }

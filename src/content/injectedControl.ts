@@ -43,7 +43,7 @@ export function syncInjectedControl(settings: ExtensionSettings): void {
     // Update state & visual styling
     const isModeOn = settings.forwardedMode;
     control.setAttribute('data-mode', isModeOn ? 'on' : 'off');
-    control.title = `Click to turn Forwarded Mode ${isModeOn ? 'OFF' : 'ON'}`;
+    control.title = `Forwarded Text Mode: ${isModeOn ? 'ON' : 'OFF'} • Powered by NorthPeak Studio`;
 
     control.innerHTML = `
       <span class="wfm-pill-dot ${isModeOn ? 'wfm-dot-active' : ''}"></span>

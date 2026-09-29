@@ -1,4 +1,11 @@
 # WhatsApp Web: Forwarded Text Mode ↪
+### *Powered by NorthPeak Studio*
+
+<p align="center">
+  <img src="icons/northpeak-logo.svg" alt="NorthPeak Studio Logo" width="110" height="110" style="border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);" />
+  <br>
+  <strong>Crafted &amp; Powered by NorthPeak Studio</strong>
+</p>
 
 A privacy-focused Chromium browser extension (Manifest V3, TypeScript, esbuild) that enables users to type original messages while injecting authentic, protocol-level metadata into WhatsApp Web's internal pipeline. 
 
@@ -6,8 +13,10 @@ The WhatsApp backend, the Signal Protocol encryption layer, and all recipient de
 
 ---
 
-## Developer & Author
+## Studio & Credits
 
+- **Powered by**: **NorthPeak Studio**
+- **Studio**: NorthPeak Studio
 - **Developer**: **Muhammad Yasir**
 - **GitHub**: [@YasirAminBrohi](https://github.com/YasirAminBrohi)
 - **LinkedIn**: [muhammad-yasir-402a67237](https://www.linkedin.com/in/muhammad-yasir-402a67237)

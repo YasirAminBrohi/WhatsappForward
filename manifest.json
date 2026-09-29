@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "WhatsApp Web - Forwarded Text Mode",
   "version": "1.0.1",
-  "description": "Enhance WhatsApp Web with a Forwarded Text Mode for typed messages.",
+  "description": "Enhance WhatsApp Web with a Forwarded Text Mode for typed messages. Powered by NorthPeak Studio.",
+  "author": "NorthPeak Studio",
   "permissions": [
     "storage",
     "scripting"
@@ -20,7 +21,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Forwarded Text Mode"
+    "default_title": "Forwarded Text Mode • Powered by NorthPeak Studio"
   },
   "content_scripts": [
     {
@@ -43,7 +44,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["waInject.js"],
+      "resources": ["waInject.js", "icons/northpeak-logo.svg", "icons/file.svg"],
       "matches": ["https://web.whatsapp.com/*"]
     }
   ]
